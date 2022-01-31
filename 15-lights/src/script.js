@@ -2,6 +2,8 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
+import { HemisphereLight } from 'three'
+import {RectAreaLightHelper} from 'three/examples/jsm/helpers/RectAreaLightHelper';
 
 /**
  * Base
@@ -41,8 +43,47 @@ pointLight.position.set(1, -0.5, 1)
 gui.add(pointLight, 'intensity').min(0).max(1).step(0.01);
 scene.add(pointLight);
 
+// Just work with physical material or standard material
 const reactAreaLight = new THREE.RectAreaLight(0x4e00ff, 2, 1, 1);
+reactAreaLight.position.set(-1.5, 0, 1.5);
+reactAreaLight.lookAt(new THREE.Vector3(0, 0, 0));
+gui.add(reactAreaLight, 'intensity').min(0).max(1).step(0.01);
 scene.add(reactAreaLight);
+
+const spotLight = new THREE.SpotLight(0x78ff00,
+    0.5,
+    10, // DIstance
+    Math.PI * 0.1, // Angle
+    0.25, //Penumbra. Blurry at the edge
+    1 // Decay. Limit the light at the end
+    );
+spotLight.position.set(0, 2, 3);
+scene.add(spotLight);
+spotLight.target.position.x = -1;
+scene.add(spotLight.target);
+
+/**
+ * Light Helpers
+ * 
+ */
+
+const hemisphereLightHelper = new THREE.HemisphereLightHelper(hemisphere, 0.2);
+scene.add(hemisphereLightHelper);
+
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 0.2);
+scene.add(directionalLightHelper);
+
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.2);
+scene.add(pointLightHelper);
+
+const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+scene.add(spotLightHelper);
+window.requestAnimationFrame(() => {
+    spotLightHelper.update();
+})
+
+const reactAreaLightHelper = new RectAreaLightHelper(reactAreaLight);
+scene.add(reactAreaLightHelper);
 
 /**
  * Objects
